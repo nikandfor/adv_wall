@@ -1,0 +1,147 @@
+.a_status {
+	border-bottom: 1px solid #999;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.a_item {
+	position: relative;
+	clear: right;
+	overflow: hidden;
+	width: 100%;
+	margin: 10px 2px 20px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid black;
+}
+.a_item_data_tbl {
+//	min-width: 400px;
+	word-wrap: normal;
+}
+.a_t_left {
+	padding: 2px 20px 2px 2px;
+}
+.a_item_cont {
+	float: right;
+}
+.a_butt_full {
+	display: none;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
+.a_images {
+	position: relative;
+	width: 100%;
+//	height: 300px;
+	overflow: hidden;
+}
+.a_main_image {
+	display: none;
+}
+.img_drop_hover {
+	background: red;
+}
+.a_ims_cont {
+	height: 300px;
+}
+.a_ims_cont_pos {
+	text-align: center;
+}
+.a_ims_img {
+	overflow: hidden;
+	height: 100%;
+	display: inline-block;
+	padding: 5px;
+	margin: auto;
+	background: red;
+}
+.a_ims_cont img {
+	max-height: 100%;
+	height: 100%;
+	margin: auto;
+//	max-width: 100%;
+}
+.a_main_image {
+	overflow: hidden;
+}
+.a_main_image img {
+	width: 100%;
+	max-height: 100%;
+}
+.a_ims_buttons {
+	height: 30px;
+	display: none;
+	z-index: 10;
+}
+.a_data_desc {
+	position: relative;
+	float: left;
+	width: 100%;
+}
+.a_butt.a_butt_left {
+	float: left;
+//	clear: right;
+}
+.a_butt {
+	float: right;
+	margin: 0px 10px;
+	cursor: pointer;
+}
+.a_item_template {
+	background: #eee;
+}
+
+.a_item_compact .a_images {
+	display: none;
+}
+.a_item_compact .a_main_image {
+	display: block;
+	float: left;
+	width: 150px;
+	max-height: 150px;
+}
+.a_item_compact .a_data_table {
+	float: left;
+}
+.a_item_compact .a_data_desc {
+	display: none;
+}
+.a_item_compact .a_butts {
+	display: none;
+}
+.a_item_compact .prop_edit_val {
+	display: none;
+}
+.a_item_compact .a_butt_full {
+	display: block;
+}
+
+.a_item_full .a_data_desc {
+	display: block;
+}
+.a_item_full .a_butts {
+	display: block;
+}
+.a_item_full .prop_edit_val {
+	display: none;
+}
+.a_item_full .click_ab_save {
+	display: none;
+}
+
+.a_item_edit .prop_edit_val {
+	display: inline;
+}
+.a_item_edit .prop_val {
+	display: none;
+}
+.a_item_edit .click_ab_edit {
+	display: none;
+}
+.a_item_edit.a_item_template .a_images {
+	display: none;
+}
+.a_item_edit .a_ims_buttons {
+	display: block;
+}
