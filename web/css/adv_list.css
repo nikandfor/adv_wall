@@ -91,6 +91,9 @@ table {
 .a_item_template {
 	background: #eee;
 }
+.a_butt_submit {
+	display: none;
+}
 
 .a_item_compact .a_images {
 	display: none;
@@ -142,6 +145,9 @@ table {
 .a_item_edit.a_item_template .a_images {
 	display: none;
 }
-.a_item_edit .a_ims_buttons {
+.js_unavailable .a_item_edit .a_ims_buttons {
+	display: block;
+}
+.js_unavailable .a_butt_submit {
 	display: block;
 }

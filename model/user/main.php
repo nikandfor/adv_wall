@@ -64,11 +64,11 @@ class User {
 		setcookie('t', $_COOKIE['t'], cookie_log_time());
 	}
 	function log_token($l){
-		return md5($l.$_SERVER['HTTP_USER_AGENT'].$_COOKIE['PHPSESSID'].$this->salt.$this->pass);
+		return md5($l.$_SERVER['HTTP_USER_AGENT'].$this->salt.$this->pass);
 	}
 }
 class Users {
-	protected $tn_advs = 'users';
+	protected $tn_users = 'users';
 
 	protected $db;
 	protected $users;
@@ -109,7 +109,7 @@ class Users {
 
 		$this->users = array();
 
-		$q = $this->db->query("SELECT * FROM `{$this->tn_advs}`");
+		$q = $this->db->query("SELECT * FROM `{$this->tn_users}`");
 		while($a = $q->fetch_assoc()){
 			$this->users[$a['id']] = $a;
 		}
@@ -119,6 +119,7 @@ class Users {
 	function __construct(){
 		$this->db = new DB();
 		$this->users = null;
+		createTable($this->tn_users, array(array('email', 'varchar(100)'), array('name', 'varchar(100)'), array('pass', 'varchar(40)'), array('sail', 'varchar(40)')));
 	}
 }
 ?>

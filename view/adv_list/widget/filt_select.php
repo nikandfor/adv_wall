@@ -1,8 +1,7 @@
-		<div class="bl_filter bl_filt_select <?= $params['class'] ?>">
+		<div class="bl_filter bl_filt_select <?= $params['class'] ?>" data-filtid=<?= $params['id'] ?>>
 			<?php if(isset($params['label'])){ ?>
 				<label for=<?= $params['id'] ?>><?= $params['label'] ?></label>
 			<?php } ?>
-			<form id="<?= $params['id'] ?>">
 				<ul>
 				<?php
 					foreach($params['vals'] as $id => $V):
@@ -12,5 +11,4 @@
 					endforeach
 				?>
 				</ul>
-			</form>
 		</div>

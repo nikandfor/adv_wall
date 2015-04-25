@@ -14,7 +14,7 @@ class AdvList {
 	function manageAdv($d){
 		$u = $this->user;
 		if($u == null || !$u->isLogged())
-			return array('status' => 'fail');
+			return array('status' => 'fail', 'message' => 'login');
 
 		$adv = null;
 		if($d['act'] == 'add'){
@@ -24,8 +24,8 @@ class AdvList {
 		}
 
 		$props = array();
-		if(isset($d['data']['props']))
-			foreach($d['data']['props'] as $pr_n => $pr_v){
+		if(isset($d['props']))
+			foreach($d['props'] as $pr_n => $pr_v){
 				list($pr_id) = sscanf($pr_n, "prop_%d");
 				$props[$pr_id] = $pr_v;
 			}
@@ -77,6 +77,37 @@ class AdvList {
 	}
 	function getFields(){
 		return $this->db->loadFields();
+	}
+	function searchAdvs($q){
+		$dbf = $this->getFields();
+		$props = array();
+		$fields = array();
+
+		$l = preg_split('/[\s,]+/', $q);
+	//	$qres = array();
+		foreach($l as $e_i => $e){
+			foreach($dbf as $pr_id => $pr){
+				if($pr['kind'] != 'props')
+					continue;
+				foreach($pr['vals'] as $v_id => $v_b){
+				//	echo "cmp '{$v_b['val']}' and '$e'<br>\n";
+					if($v_b['val'] == $e){
+						$props[$pr_id] = array($v_id);
+					//	$qres[] = $e;
+						continue 3;
+					}
+				}
+			}
+		}
+
+		$list = $this->db->loadList($props, $fields);
+
+		$ans = array();
+		foreach($list as $id => $a){
+			$ans[] = $this->getAdv1($a);
+		}
+
+		return $ans;
 	}
 	function getAdvs($f){
 		$dbf = $this->getFields();

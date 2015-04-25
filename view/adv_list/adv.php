@@ -4,7 +4,7 @@ $cell = function($t, $vals){
 		<span class=label>{$t['label']}</span>: 
 		<span class=prop_val id=prop_val_{$t['prop']}>{$t['val']}</span>
 EEE;
-	$res .= "<select class=prop_edit_val name=prop_{$t['prop']}>\n";
+	$res .= "<select class=prop_edit_val name=prop_{$t['prop']} required>\n";
 	foreach($vals as $v_id => $v_v)
 		$res .= "<option value={$v_v['id']} ".($v_v['id'] == $t['val_id']? " selected": "").">{$v_v['val']}</option>\n";
 	$res .= "</select>\n";
@@ -14,6 +14,7 @@ EEE;
 ?>
 <div class="a_item_container">
 <div class="a_item a_item_<?= $params['view_type'] ?> <?= $params['addit_class'] ?>" data-itemid=<?= $params['id'] ?>>
+	<form class=a_item_form name=a_edit_form_<?= $params['id']?> action="/printer.php?r=manageAdv" method=post enctype="multipart/form-data">
 	<div class=wide_block>
 		<div class="a_images img_uploader">
 			<div class=a_ims_cont>
@@ -21,8 +22,8 @@ EEE;
 			<?php
 				foreach($params['ims'] as $im){
 			?>
-					<div class=a_ims_img>
-						<img src=<?=$im['src']?> data-imgid=<?=$im['id']?>>
+					<div class=a_ims_img data-imid=<?=$im['id']?>>
+						<img src=<?=$im['src']?>>
 					</div>
 			<?php
 				}
@@ -30,7 +31,14 @@ EEE;
 				</div>
 			</div>
 			<div class=a_ims_buttons>
-				<input type=file name=file_updload>
+				<input type=hidden name=image_act_1 value=add />
+				<input type=hidden name=image_sort_1 value=100 />
+				<input type=hidden name=image_fileid_1 value=image_upload_1 />
+				<input type="file" name=image_upload_1 class=a_img_upload />
+				<input type=hidden name=image_act_2 value=add />
+				<input type=hidden name=image_sort_2 value=101 />
+				<input type=hidden name=image_fileid_2 value=image_upload_2 />
+				<input type="file" name=image_upload_2 class=a_img_upload />
 			</div>
 		</div>
 		<div class="a_main_image">
@@ -104,7 +112,11 @@ EEE;
 			<div class="a_butt click_ab click_ab_save">
 				сохранить
 			</div>
+			<div class="a_butt a_butt_submit">
+				<input type=submit value="submit">
+			</div>
 		</div>
 	</div>
+	</form>
 </div>
 </div>

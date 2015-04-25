@@ -1,6 +1,8 @@
 function req(page, obj, call, args){
 	var meth = args && args.meth || "GET";
 	var data = args && args.data || null;
+	if(data != null)
+		meth = 'POST';
 	var req = new XMLHttpRequest();
 	var str = JSON.stringify(obj);
 //	console.log("str", str, encodeURI(str), encodeURIComponent(str))
@@ -44,6 +46,8 @@ function prevent_click(ev){
 }
 function prevent_default(ev){
 	ev = ev || event || window.event;
+	ev.bubbles = false;
+	ev.cancelBubble = true;
 	ev.preventDefault();
 }
 
@@ -96,10 +100,9 @@ function filts_poll(div){
 	for(var i = 0; i < els.length; i++){
 		var id, e;
 		if(els[i].classList.contains('bl_filt_select')){
-			var fr = els[i].getElementsByTagName('form')[0];
-			id = fr.id;
+			id = els[i].getAttribute('data-filtid');
 			e = [];
-			var inps = fr.getElementsByTagName('input');
+			var inps = els[i].getElementsByTagName('input');
 			for(var j = 0; j < inps.length; j++){
 				if(inps[j].checked){
 					e.push(inps[j].value)
@@ -164,30 +167,72 @@ function show_login_form(){
 
 /* upload images */
 window.addEventListener('load', function(){
-	window.addEventListener('dragover', prevent_default, false)
-	window.addEventListener('drop', prevent_default, false)
+	window.addEventListener('dragover', dragDrop, false)
+	window.addEventListener('drop', dragDrop, false)
+	window.addEventListener('dragleave', dragDrop, false)
+
+	var ib = document.getElementsByClassName('a_ims_buttons');
+	for(var i = 0; i < ib.length; i ++){
+		var node = ib[0];
+
+		while(node.hasChildNodes()){
+			node.removeChild(node.lastChild);
+		}
+	}
 })
-function enableUpload(div){
-	var c = div.getElementsByClassName('a_ims_cont')[0];
-	var z = div.getElementsByClassName('img_uploader')[0];
-	console.log(c, z)
-	if(!c || !z)
-		return;
-	z.ondrop = function(e){
-		prevent_default(e);
+var image_sort_next = 100;
+function dragDrop(ev){
+	prevent_default(ev);
 
-		console.log("drop", arguments)
-	}
-	z.ondragover = function(e){
-		prevent_default(e);
+	var up = closestParentClass(ev.target, 'img_uploader');
+	while(up != null){
+		var item = closestParentClass(up, 'a_item');
+		var id = item.getAttribute('data-itemid');
+		if(!item.classList.contains('a_item_edit'))
+			break;
 
-		c.classList.add('img_drop_hover');
+		switch(ev.type){
+			case "dragover":
+				up.classList.add("img_drop_hover");
+				break;
+			case "drop":
+				var fs = ev.dataTransfer.files;
+				dropImage(item, fs);
+			case "dragleave":
+				up.classList.remove("img_drop_hover");
+				break;
+		}
+
+	//	console.log(id, ev.type, ev)
+		break;
 	}
-	z.ondragleave = z.ondragend = function(e){
-		prevent_default(e);
-		
-		c.classList.remove('img_drop_hover');
-		console.log('DDD')
+
+	return false;
+}
+function dropImage(item, fs){
+	for(var i = 0; i < fs.length; i++){
+		var f = fs[i];
+		if(f.type != "image/jpeg" && f.type != "image/png")
+			continue;
+		var reader = new FileReader();
+		reader.onload = function(ev1){
+			var img_div = document.createElement('div')
+			img_div.innerHTML = "<div class=a_ims_img><img src=" + ev1.target.result + "></div>";
+			img_div = img_div.children[0];
+			img_div.data_file = f;
+			var cont = item.getElementsByClassName('a_ims_cont_pos')[0];
+			cont.appendChild(img_div);
+
+		/*	req('img_upload', {fileid: 'f1'}, function(d){
+				console.log('file uploaded', d)
+				var j = JSON.parse(d);
+				if(j.status == 'OK'){
+					img_div.data_imid = d.imid;
+				}
+			}, {meth: "POST", data: {f1: f}});
+		*/
+		}
+		reader.readAsDataURL(f);
 	}
 }
 
@@ -198,6 +243,8 @@ window.addEventListener('load', function(){
 //	setIdClickAction('append_send', append_send);
 //	setIdClickAction('append_cancel', hide_append);
 	setIdClickAction('append_show_button', show_append_add);
+
+	document.body.classList.remove('js_unavailable');
 })
 function show_append_add(){
 	req('adv_template', {}, function(d){
@@ -206,8 +253,8 @@ function show_append_add(){
 		l.insertBefore(t, l.firstChild);
 		t.outerHTML = d;
 
-		t = l.getElementsByClassName('a_item_template')[0];
-		enableUpload(t);
+	//	t = l.getElementsByClassName('a_item_template')[0];
+	//	enableUpload(t);
 	});
 }
 function pollAdvData(div){
@@ -219,27 +266,52 @@ function pollAdvData(div){
 
 	return obj;
 }
+function pollAdvIms(div){
+	var data = [];
+	var files = {};
+	var els = div.getElementsByClassName('a_ims_img');
+	for(var i = 0; i < els.length; i++){
+		var e = els[i];
+		if(e.data_file){
+			var q = 'file' + i;
+			data.push({act: 'add', sort: 100 + i, fileid: q});
+			files[q] = e.data_file;
+		}else if(e.data_imid){
+			var o = {act: 'edit', sort: 100 + i, imid: e.data_imid};
+			data.push(o);
+		}
+	}
+
+	return {data: data, files: files};
+}
 function advSaveEdition(div){
 	var data = pollAdvData(div);
 	if(data === false)
 		return;
+	var ims = pollAdvIms(div);
 
 	var id = div.getElementsByClassName('append_inp_id')[0].value;
 	var act = div.getElementsByClassName('append_inp_act')[0].value;
 
 	console.log(div, id, act, data)
-	req("adv_manage", {id: id, act: act, data: {props: data}}, function(ans){
+	req("adv_manage", {id: id, act: act, props: data, ims: ims.data}, function(ans){
 	//	console.log("we did it! ", ans)
-		var j = JSON.parse(ans);
-		if(j.status == 'OK'){
-			var par = closestParentClass(div, 'a_item_container');
-			par.innerHTML = j.html_adv;
+		try{
+			var j = JSON.parse(ans);
+			if(j.status == 'OK'){
+				var par = closestParentClass(div, 'a_item_container');
+				par.innerHTML = j.html_adv;
 
-			var ndiv = par.getElementsByClassName('a_item')[0];
-		//	console.log("FULL->", par, ndiv)
-			setAdvViewFull(ndiv);
+				var ndiv = par.getElementsByClassName('a_item')[0];
+			//	console.log("FULL->", par, ndiv)
+				setAdvViewFull(ndiv);
+			}else{
+				console.log(j);
+			}
+		}catch(e){
+			console.log(ans);
 		}
-	});
+	}, {data: ims.files});
 }
 function setAdvViewEdit(div){
 	div.classList.remove('a_item_compact');
@@ -256,55 +328,22 @@ function setAdvViewCompact(div){
 	div.classList.remove('a_item_edit');
 	div.classList.add('a_item_compact');
 }
-/*
-function hide_append(){
-	var q = document.getElementById('wind_append');
-	q.classList.remove("visible");
-}
-function show_append_add(){
-	var q = document.getElementById('wind_append');
-	q.classList.add("visible");
-	document.getElementById('append_inp_id').value = '';
-	document.getElementById('append_inp_act').value = 'add';
-}
-function show_append_edit(id){
-	document.getElementById('wind_append').classList.add('visible');
-	document.getElementById('append_inp_id').value = id;
-	document.getElementById('append_inp_act').value = 'edit';
-}
-function append_send(){
-	var cont = document.getElementsByClassName("widget_append")[0];
-	var data = inp_poll(cont);
-	if(data === false)
-		return;
-	var id = document.getElementById('append_inp_id').value;
-	var act = document.getElementById('append_inp_act').value;
-	console.log("data", data)
-	req("adv_manage", {id: id, act: act, data: {props: data}}, function(ans){
-		console.log("we did it! ", ans)
-	});
-}
-function inp_poll(div){
-	var obj = {};
 
-	var els = div.getElementsByClassName("bl_inp");
-	for(var i = 0; i < els.length; i++){
-		var e;
-		if(els[i].classList.contains('bl_inp_select')){
-			e = els[i].getElementsByTagName('select')[0];
-		}else if(els[i].classList.contains('bl_inp_integer')){
-			e = els[i].getElementsByTagName('input')[0];
-		}else if(els[i].classList.contains('bl_inp_bigtext')){
-			e = els[i].getElementsByTagName('textarea')[0];
-		}
-		if(e.value == ""){
-			e.focus();
-			return false;
-		}
-
-		obj[e.id] = e.value;
-	}
-
-	return obj;
+/* search */
+window.addEventListener('load', function(){
+	document.getElementsByClassName('a_search_text')[0].onkeyup = search_send;
+	document.getElementsByClassName('a_search_send')[0].onclick = search_send;
+})
+var searchTimer = null;
+function search_send(ev){
+	if(searchTimer)
+		clearTimeout(searchTimer);
+	searchTimer = setTimeout(function(){
+		var text = ev.target.value;
+		document.getElementsByClassName('a_search_send')[0].classList.add('a_search_wait');
+		req('adv_search', {q: text}, function(d){
+			document.getElementById('main_container').innerHTML = d;
+			document.getElementsByClassName('a_search_send')[0].classList.remove('a_search_wait');
+		})
+	}, 100);
 }
-*/

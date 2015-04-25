@@ -17,7 +17,7 @@ class ImageStore {
 		$ext = $this->exts[$fl['type']];
 		$path = "$md5.$ext";
 
-		if(!move_uploaded_file($fl['tmp_name'], IMAGES_DIR."/$path"))
+		if(!move_uploaded_file($fl['tmp_name'], LOCAL_IMAGES_DIR."/$path"))
 			return false;
 
 		$this->db->query("INSERT INTO `{$this->tn_imgs}` (`user`, `md5`, `path`) VALUES ('$u', '$md5', '$path')");
@@ -44,6 +44,8 @@ class ImageStore {
 		$this->db = new DB();
 		$this->files = null;
 		$this->adv_ims = null;
+
+		createTable($this->tn_imgs, array(array('user'), array('md5', 'varchar(34)'), array('path', 'varchar(100)')));
 	}
 }
 ?>

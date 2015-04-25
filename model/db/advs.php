@@ -44,20 +44,25 @@ class Advs {
 		$ims_rm = array();
 		foreach($m as $im){
 			if($im['act'] == 'add'){
-				$id = $up->uploadImage($u->id, $im['fileid']);
-				$ims_add[] = "('$id', '{$im['img']}', '{$im['sort']}')";
+				$imid = $up->uploadImage($u->id, $im['fileid']);
+				if($imid === FALSE){
+					continue;
+				}
+				$ims_add[] = "('$id', '$imid', '{$im['sort']}')";
 			}elseif($im['act'] == 'rm'){
 				$up->removeImage($im['img']);
 				$ims_rm[] = "'{$im['img']}'";
+			}else{
+				$this->db->query("UPDATE `{$this->tn_advims}` SET `sort` = '{$im['sort']}' WHERE `id` = '{$im['imid']}'");
 			}
 		}
 		if(count($ims_add) > 0){
 			$vals = implode(", ", $ims_add);
-			$this->db->query("INSERT INTO `{$tn_advims}` (`adv`, `img`, `sort`) VALUES $vals");
+			$this->db->query("INSERT INTO `{$this->tn_advims}` (`adv`, `img`, `sort`) VALUES $vals");
 		}
 		if(count($ims_rm) > 0){
 			$vals = implode(", ", $ims_rm);
-			$this->db->query("DELETE FROM `{$tn_advims}` WHERE `img` IN ($vals)");
+			$this->db->query("DELETE FROM `{$this->tn_advims}` WHERE `img` IN ($vals)");
 		}
 	}
 	function removeAdv($id){
@@ -207,6 +212,7 @@ class Advs {
 			$ans = $a;
 			$ans['props'] = array();
 			$ans['fileds'] = array();
+			$ans['ims'] = array();
 		}
 
 		$q = $this->db->query("SELECT * FROM `{$this->tn_advprops}` WHERE `adv` = '$id'");
@@ -256,6 +262,27 @@ class Advs {
 	}
 	function __construct(){
 		$this->db = new DB();
+		createTable($this->tn_advs, array(array('owner', 'int(11)'),
+										array('added', 'timestamp', 'DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+										array('status', "enum('active','hidden','template')", "DEFAULT 'active'")));
+		createTable($this->tn_advprops, array(array('adv', 'int(11)', 'KEY'), array('prop', 'int(11)', 'KEY'), array('val', 'int(11)')));
+
+		createTable($this->tn_prns, array(array('name', 'varchar(100)'),
+										array('type', "enum('int','float','text')"),
+										array('kind', "enum('props','fields')"),
+										array('sort_disp', 'int(11)', 'DEFAULT 100'),
+										array('sort_filter', 'int(11)', 'DEFAULT 100'),
+										array('widget_type', 'varchar(25)')
+									));
+		createTable($this->tn_prpr."int", 	array(array('prop', 'int(11)', 'KEY'), array('val', 'int(11)', 'KEY'), array('sort', 'int(11)', 'DEFAULT 100')));
+		createTable($this->tn_prpr."float", array(array('prop', 'int(11)', 'KEY'), array('val', 'float',   'KEY'), array('sort', 'int(11)', 'DEFAULT 100')));
+		createTable($this->tn_prpr."text", 	array(array('prop', 'int(11)', 'KEY'), array('val', 'text',    'KEY'), array('sort', 'int(11)', 'DEFAULT 100')));
+
+		createTable($this->tn_fdpr."int", 	array(array('adv', 'int(11)', 'KEY'), array('field', 'int(11)', 'KEY'), array('val', 'int(11)')));
+		createTable($this->tn_fdpr."float", array(array('adv', 'int(11)', 'KEY'), array('field', 'int(11)', 'KEY'), array('val', 'float')));
+		createTable($this->tn_fdpr."text", 	array(array('adv', 'int(11)', 'KEY'), array('field', 'int(11)', 'KEY'), array('val', 'text')));
+
+		createTable($this->tn_advims, array(array('adv', 'int(11)', 'KEY'), array('img'), array('sort', 'int(11)', 'DEFAULT 100')));
 	}
 }
 ?>

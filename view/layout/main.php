@@ -4,15 +4,18 @@
 	<link rel=stylesheet type="text/css" href="css/main.css">
 	<link rel=stylesheet type="text/css" href="css/adv_list.css">
 	<script src="js/adv_list.js"></script>
-	<title>adv list<?/*= $params['title'] */?></title>
+	<title>adv list<?php/*= $params['title'] */?></title>
 </head>
-<body>
+<body class="js_unavailable">
 	<div class=wrap>
 		<div class=header>
 			<div class=nav>
 				<div id=hmenu_login_container><?= $params['log_hmenu'] ?></div>
 				<button id=append_show_button>append</button>
-				<input>
+				<div class=a_search>
+					<input type=text class=a_search_text>
+					<input type=button class=a_search_send value="S">
+				</div>
 			</div>
 			<div class=logo>
 			</div>
@@ -22,6 +25,7 @@
 				<?= $params['side'] ?>
 			</div>
 			<div class=main id=main_container>
+				<?= $params['message'] ?>
 				<?= $params['cont'] ?>
 			</div>
 		</div>

@@ -41,12 +41,38 @@ html, body {
 	padding: 7px 20px;
 	margin: auto 10px;
 }
-.nav input {
+.nav .a_search {
 	float: right;
 	height: 33px;
 	width: 400px;
 	margin: 1px 10px;
 	border: 2px solid black;
+	background: white;
+}
+.a_search input:focus {
+	border: none;
+	outline: none;
+}
+.a_search .a_search_text {
+	width: 360px;
+	height: 100%;
+	margin: 0;
+	float: left;
+	border: none;
+}
+.a_search .a_search_send {
+	width: 34px;
+	height: 100%;
+	margin: 0;
+	float: right;
+	background: white;
+	border: none;
+}
+.a_search .a_search_send:active {
+	background: #eee;
+}
+.a_search .a_search_send.a_search_wait {
+	background: green;
 }
 .body .menu {
 	float: left;
